@@ -280,7 +280,7 @@ namespace Plank
 			return i;
 		}
 		
-		public static void focus_previous (Bamf.Application app, uint32 event_time)
+		public static void focus_previous (Bamf.Application app, uint32 event_time, bool stay_in_workspace)
 		{
 			unowned Wnck.Screen screen = Wnck.Screen.get_default ();
 			Array<uint32>? xids = app.get_xids ();
@@ -294,7 +294,7 @@ namespace Plank
 			var next = active < xids.length ? active - 1 : 0;
 			var i = next;
 
-			if (true) {
+			if (stay_in_workspace) {
 				unowned Wnck.Workspace? active_workspace = screen.get_active_workspace ();
 				if (active_workspace != null) {
 					// find one that's on our workspace. If we wrap around, stay on active
@@ -314,7 +314,7 @@ namespace Plank
 			focus_window_by_xid (xids.index (i), event_time);
 		}
 		
-		public static void focus_next (Bamf.Application app, uint32 event_time)
+		public static void focus_next (Bamf.Application app, uint32 event_time, bool stay_in_workspace)
 		{
 			unowned Wnck.Screen screen = Wnck.Screen.get_default ();
 			Array<uint32>? xids = app.get_xids ();
@@ -328,7 +328,7 @@ namespace Plank
 			var next = active < xids.length ? active + 1 : 0;
 			var i = next;
 
-			if (true) {
+			if (stay_in_workspace) {
 				unowned Wnck.Workspace? active_workspace = screen.get_active_workspace ();
 				if (active_workspace != null) {
 					// find one that's on our workspace. If we wrap around, stay on active

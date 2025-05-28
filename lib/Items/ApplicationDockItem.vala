@@ -345,13 +345,16 @@ namespace Plank
 			
 			if (GLib.get_monotonic_time () - LastScrolled < ITEM_SCROLL_DURATION * 1000)
 				return AnimationType.DARKEN;
+
+			unowned DefaultApplicationDockItemProvider? default_provider = (Container as DefaultApplicationDockItemProvider);
+			bool stay_in_workspace = (default_provider != null) && default_provider.Prefs.CurrentWorkspaceOnly;
 			
 			LastScrolled = GLib.get_monotonic_time ();
 			
 			if (direction == Gdk.ScrollDirection.UP || direction == Gdk.ScrollDirection.LEFT)
-				WindowControl.focus_previous (App, event_time);
+				WindowControl.focus_previous (App, event_time, stay_in_workspace);
 			else
-				WindowControl.focus_next (App, event_time);
+				WindowControl.focus_next (App, event_time, stay_in_workspace);
 			
 			return AnimationType.DARKEN;
 		}
