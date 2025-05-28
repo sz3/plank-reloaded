@@ -184,7 +184,7 @@ namespace Plank
 				unowned Wnck.Window window = Wnck.Window.@get (xids.index (i));
 				if (window == null || window.is_skip_tasklist ())
 					continue;
-				
+
 				if (!is_virtual) {
 					if (window.is_on_workspace (workspace))
 						return true;
@@ -193,7 +193,25 @@ namespace Plank
 						return true;
 				}
 			}
-			
+
+			return false;
+		}
+
+		public static bool is_window_on_workspace (Wnck.Window window, Wnck.Workspace workspace)
+		{
+			var is_virtual = workspace.is_virtual ();
+
+			if (window == null || window.is_skip_tasklist ())
+				return false;
+
+			if (!is_virtual) {
+				if (window.is_on_workspace (workspace))
+					return true;
+			} else {
+				if (window.is_in_viewport (workspace))
+					return true;
+			}
+
 			return false;
 		}
 		
@@ -264,7 +282,7 @@ namespace Plank
 		
 		public static void focus_previous (Bamf.Application app, uint32 event_time)
 		{
-			Wnck.Screen.get_default ();
+			unowned Wnck.Screen screen = Wnck.Screen.get_default ();
 			Array<uint32>? xids = app.get_xids ();
 			
 			warn_if_fail (xids != null);
@@ -272,9 +290,24 @@ namespace Plank
 			if (xids == null)
 				return;
 			
-			var i = find_active_xid_index (xids);
-			i = i < xids.length ? i - 1 : 0;
-			
+			var active = find_active_xid_index (xids);
+			var next = active < xids.length ? active - 1 : 0;
+			var i = next;
+
+			if (true) {
+				unowned Wnck.Workspace? active_workspace = screen.get_active_workspace ();
+				if (active_workspace != null) {
+					// find one that's on our workspace. If we wrap around, stay on active
+					for (; i != active; i--) {
+						if (i < 0)
+							i = (int) xids.length - 1;
+						unowned Wnck.Window? window = Wnck.Window.@get (xids.index (i));
+						if (window != null && is_window_on_workspace (window, active_workspace))
+							break;
+					}
+				}
+			}
+
 			if (i < 0)
 				i = (int) xids.length - 1;
 			
@@ -283,7 +316,7 @@ namespace Plank
 		
 		public static void focus_next (Bamf.Application app, uint32 event_time)
 		{
-			Wnck.Screen.get_default ();
+			unowned Wnck.Screen screen = Wnck.Screen.get_default ();
 			Array<uint32>? xids = app.get_xids ();
 			
 			warn_if_fail (xids != null);
@@ -291,8 +324,23 @@ namespace Plank
 			if (xids == null)
 				return;
 			
-			var i = find_active_xid_index (xids);
-			i = i < xids.length ? i + 1 : 0;
+			var active = find_active_xid_index (xids);
+			var next = active < xids.length ? active + 1 : 0;
+			var i = next;
+
+			if (true) {
+				unowned Wnck.Workspace? active_workspace = screen.get_active_workspace ();
+				if (active_workspace != null) {
+					// find one that's on our workspace. If we wrap around, stay on active
+					for (; i != active; i++) {
+						if (i == xids.length)
+							i = 0;
+						unowned Wnck.Window? window = Wnck.Window.@get (xids.index (i));
+						if (window != null && is_window_on_workspace (window, active_workspace))
+							break;
+					}
+				}
+			}
 			
 			if (i == xids.length)
 				i = 0;
